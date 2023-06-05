@@ -91,9 +91,6 @@ export class Aurora extends Construct {
       cloudwatchLogsRetention: cdk.aws_logs.RetentionDays.ONE_YEAR,
       clusterIdentifier,
       copyTagsToSnapshot: true,
-      credentials: {
-        username: "postgresAdmin",
-      },
       defaultDatabaseName: "testDB",
       deletionProtection: false,
       iamAuthentication: false,
@@ -110,6 +107,8 @@ export class Aurora extends Construct {
     const cfnDbCluster = dbCluster.node
       .defaultChild as cdk.aws_rds.CfnDBCluster;
     cfnDbCluster.manageMasterUserPassword = true;
+    cfnDbCluster.masterUsername = "postgresAdmin";
     cfnDbCluster.addPropertyDeletionOverride("MasterUserPassword");
+    dbCluster.node.tryRemoveChild("Secret");
   }
 }
