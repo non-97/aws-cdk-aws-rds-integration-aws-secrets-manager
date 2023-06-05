@@ -110,5 +110,22 @@ export class Aurora extends Construct {
     cfnDbCluster.masterUsername = "postgresAdmin";
     cfnDbCluster.addPropertyDeletionOverride("MasterUserPassword");
     dbCluster.node.tryRemoveChild("Secret");
+
+    const masterUserSecretArn = cfnDbCluster
+      .getAtt("MasterUserSecret.SecretArn")
+      .toString();
+
+    new cdk.aws_secretsmanager.CfnRotationSchedule(this, "RotationSchedule", {
+      secretId: masterUserSecretArn,
+      rotationRules: {
+        scheduleExpression: "cron(0 18 ? 1/1 7#1 *)",
+        duration: "1h",
+      },
+    });
+
+    new cdk.CfnOutput(this, "OutputMasterUserSecretArn", {
+      value: masterUserSecretArn,
+      exportName: "OutputMasterUserSecretArn",
+    });
   }
 }
