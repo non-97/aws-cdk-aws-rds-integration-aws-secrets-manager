@@ -65,7 +65,7 @@ export class Aurora extends Construct {
 
     // DB Cluster
     const clusterIdentifier = "db-cluster";
-    new cdk.aws_rds.DatabaseCluster(this, "Default", {
+    const dbCluster = new cdk.aws_rds.DatabaseCluster(this, "Default", {
       engine: cdk.aws_rds.DatabaseClusterEngine.auroraPostgres({
         version: cdk.aws_rds.AuroraPostgresEngineVersion.VER_15_2,
       }),
@@ -107,5 +107,9 @@ export class Aurora extends Construct {
       securityGroups: [props.securityGroup],
       subnetGroup,
     });
+
+    const cfnDbCluster = dbCluster.node
+      .defaultChild as cdk.aws_rds.CfnDBCluster;
+    cfnDbCluster.manageMasterUserPassword = true;
   }
 }
